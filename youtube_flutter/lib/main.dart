@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:youtube_flutter/models/student.dart';
 
@@ -11,13 +13,21 @@ class MyApp extends StatelessWidget {
     return MaterialApp(home: HomeScreen());
   }
 }
-
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget
+{
+  @override
+  State<StatefulWidget> createState()
+  {
+    return _HomeScreenState();
+  }
+}
+class _HomeScreenState extends State {
   List<Student> students = [
     Student.withId(1, "Fırat Can", "Yıldırım", 95),
-    Student.withId(2, "Mehmet Can", "Özdemir", 55),
+    Student.withId(2, "Mehmet Can", "Özdemir", 45),
     Student.withId(3, "Emre", "Ürker", 25)
   ];
+  Student selectedStudent = Student.withId(0, "", "", 0);
   @override
   Widget build(BuildContext context) {
     //return Center(child: Text("Hello World!"),);
@@ -44,16 +54,35 @@ class HomeScreen extends StatelessWidget {
                       " " +
                       students[index].lastName),
                   subtitle: Text("Sınavdan aldığı not : " +
-                      students[index].grade.toString()),
+                      students[index].grade.toString()+"["+students[index].getStatus+"]"),
                   leading: CircleAvatar(
                     backgroundImage: NetworkImage(
                         "https://img2.pngindir.com/20180701/eta/kisspng-computer-icons-user-profile-avatar-icon-5b3899483fa7a8.4711163815304359122607.jpg"),
                   ),
-                  trailing: Icon(Icons.done),
+                  trailing: buildStatusIcon(students[index].grade),
+                  onTap: (){
+                    setState(() {
+                      this.selectedStudent = students[index];
+                    });
+                    print(selectedStudent.firstName+" seçildi");
+                  },
+                  onLongPress: (){
+                    print("uzun tıklandı");
+                  },
                 ); //Text(students[index].firstName);
               }),
         ),
+        Text("Seçili öğrenci : "+selectedStudent.firstName)
       ],
     );
+  }
+
+  Widget buildStatusIcon(int grade)
+  {
+    if(grade>=50)
+      return Icon(Icons.done);
+    else if(grade>40)
+      return Icon(Icons.album);
+    return Icon(Icons.clear);
   }
 }
